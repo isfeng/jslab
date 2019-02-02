@@ -1,28 +1,33 @@
 var nodemailer = require('nodemailer');
+var auth = require('./auth');
+var template = require('./mail.template');
 
 var defaults = {
   from: 'gmail',
-  subject: 'Sending Email using Node.js',
-  text: 'That was easy!'
+  subject: template.subject,
+  html: template.html
 }
 
 var transporter = nodemailer.createTransport({
+  pool: true,
   host: 'smtp.gmail.com',
   port: 587,
   secure: false, // true for 465, false for other ports
   auth: {
-    user: 'gmail',
-    pass: 'pass'
+    user: auth.user,
+    pass: auth.pass
   }
 }, defaults);
 
-const send = (to) => {
-  transporter.sendMail({to}, function (error, info) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Email sent: ' + info.response);
-    }
+const send = async (to) => {
+  console.log(`send to ${to}`)
+  await transporter.sendMail({to}, (err, info) => {
+    if(!err)
+      console.log(i++);
+      if (i == 11 ) {
+        transporter.close();
+      }
+    
   });
 }
 
@@ -34,11 +39,16 @@ var instream = fs.createReadStream('./to.txt');
 var outstream = new stream;
 var rl = readline.createInterface(instream, outstream);
 
-rl.on('line', function (line) {
+let i = 1;
+let timeout = 5000;
+rl.on('line', (line) => {
   console.log(line)
-  send(line)
+  setTimeout(() => {
+    send(line)  
+  }, timeout);
+  timeout += 5000;
 });
 
 rl.on('close', function () {
-  console.log('close')
+  console.log('close file')
 });
