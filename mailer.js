@@ -21,13 +21,14 @@ var transporter = nodemailer.createTransport({
 
 const send = async (to) => {
   console.log(`send to ${to}`)
+  return;
   await transporter.sendMail({to}, (err, info) => {
-    if(!err)
+    if(!err) {
       console.log(i++);
       if (i == 11 ) {
         transporter.close();
       }
-    
+    }
   });
 }
 
@@ -40,14 +41,25 @@ var outstream = new stream;
 var rl = readline.createInterface(instream, outstream);
 
 let i = 1;
-let timeout = 5000;
-rl.on('line', (line) => {
-  console.log(line)
+// let timeout = 5000;
+// rl.on('line', (line) => {
+//   console.log(line)
+//   setTimeout(() => {
+//     send(line)  
+//   }, timeout);
+//   timeout += 5000;
+// });
+
+/* test here */
+let timeout = 500;
+for (let index = 0; index < 50000; index++) {
+  console.log(index)
   setTimeout(() => {
-    send(line)  
+    // send(line)  
+    console.log(`send ${index}`)
   }, timeout);
-  timeout += 5000;
-});
+  timeout += 500;
+}
 
 rl.on('close', function () {
   console.log('close file')
