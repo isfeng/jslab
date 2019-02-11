@@ -1,9 +1,10 @@
+var schedule = require('node-schedule');
 var nodemailer = require('nodemailer');
 var auth = require('./auth');
 var template = require('./mail.template');
 
 var defaults = {
-  from: 'gmail',
+  from: auth.user,
   subject: template.subject,
   html: template.html
 }
@@ -19,16 +20,14 @@ var transporter = nodemailer.createTransport({
   }
 }, defaults);
 
-const send = async (to) => {
-  console.log(`send to ${to}`)
-  return;
-  await transporter.sendMail({to}, (err, info) => {
-    if(!err) {
-      console.log(i++);
-      if (i == 11 ) {
-        transporter.close();
-      }
-    }
+const send = (to) => {
+  // console.log(`send to ${to}`)
+  // return;
+  transporter.sendMail({to}, (err, info) => {
+    if(!err)
+      console.log(info)
+    else
+      console.log(err)
   });
 }
 
@@ -40,27 +39,40 @@ var instream = fs.createReadStream('./to.txt');
 var outstream = new stream;
 var rl = readline.createInterface(instream, outstream);
 
-let i = 1;
-// let timeout = 5000;
+let timeout = 0;
 // rl.on('line', (line) => {
-//   console.log(line)
+//   console.log(`mail to ${line} in ${timeout} milliseconds`)
 //   setTimeout(() => {
-//     send(line)  
+//     send(line)
 //   }, timeout);
-//   timeout += 5000;
+//   timeout += 60000;
 // });
 
 /* test here */
-let timeout = 500;
-for (let index = 0; index < 50000; index++) {
-  console.log(index)
-  setTimeout(() => {
-    // send(line)  
-    console.log(`send ${index}`)
-  }, timeout);
-  timeout += 500;
-}
+// for (let index = 0; index < 60000; index++) {
+//   console.log(index)
+//   setTimeout(() => {
+//     // send(line)  
+//     console.log(`send ${index}`)
+//   }, timeout);
+//   timeout += 60000;
+// }
+
+/** schedule test */
+const mails = []
+rl.on('line', (line) => {
+  console.log(line)
+  mails.push(line)
+});
 
 rl.on('close', function () {
   console.log('close file')
+
+  var j = schedule.scheduleJob('* * * * *', function () {
+    if(mails.length > 0)
+      send(mails.pop())
+    else
+      j.cancel()
+  });
+
 });
