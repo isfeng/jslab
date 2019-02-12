@@ -4,7 +4,7 @@ var auth = require('./auth');
 var template = require('./mail.template');
 
 var defaults = {
-  from: auth.user,
+  from: '宅神爺客服 <service@bonuswinner.com.tw>',
   subject: template.subject,
   html: template.html
 }
@@ -20,20 +20,34 @@ var transporter = nodemailer.createTransport({
   }
 }, defaults);
 
-const send = (to) => {
+const send = (bcc) => {
   // console.log(`send to ${to}`)
   // return;
-  transporter.sendMail({to}, (err, info) => {
-    if(!err)
-      console.log(info)
-    else
+  transporter.sendMail({bcc}, (err, info) => {
+    if(err) {
+      console.log(`error=========================== ${to}=====================error`)
       console.log(err)
+      console.log(`error=========================== ${to}=====================error`)
+      wstream.write(`${bcc} error \n`, (err) => {
+        if (err)
+          console.log(err)
+      })
+    } else {
+      wstream.write(`${bcc} \n`, (err) => {
+        if(err)
+          console.log(err)
+        else
+          console.log(`write ${bcc}`)
+      })
+      console.log(info)
+    }
   });
 }
 
 var fs = require('fs');
 var readline = require('readline');
 var stream = require('stream');
+var wstream = fs.createWriteStream('./sended.txt', { flags: 'a' })
 
 var instream = fs.createReadStream('./to.txt');
 var outstream = new stream;
