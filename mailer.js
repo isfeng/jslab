@@ -82,7 +82,7 @@ rl.on('line', (line) => {
 rl.on('close', function () {
   console.log('close file')
 
-  var j = schedule.scheduleJob('* * * * *', function () {
+  var j = schedule.scheduleJob('*/30 * * * * *', function () {
     if(mails.length > 0)
       send(mails.pop())
     else
