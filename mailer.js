@@ -23,25 +23,27 @@ var transporter = nodemailer.createTransport({
 const send = (bcc) => {
   // console.log(`send to ${to}`)
   // return;
-  transporter.sendMail({bcc}, (err, info) => {
-    if(err) {
-      console.log(`error=========================== ${to}=====================error`)
-      console.log(err)
-      console.log(`error=========================== ${to}=====================error`)
-      wstream.write(`${bcc} error \n`, (err) => {
-        if (err)
-          console.log(err)
-      })
-    } else {
-      wstream.write(`${bcc} \n`, (err) => {
-        if(err)
-          console.log(err)
-        else
-          console.log(`write ${bcc}`)
-      })
-      console.log(info)
-    }
-  });
+  try {
+    transporter.sendMail({ bcc }, (err, info) => {
+      if (err) {
+        console.log(err)
+        wstream.write(`${bcc} error \n`, (err) => {
+          if (err)
+            console.log(err)
+        })
+      } else {
+        wstream.write(`${bcc} \n`, (err) => {
+          if (err)
+            console.log(err)
+          else
+            console.log(`write ${bcc}`)
+        })
+        console.log(info)
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 var fs = require('fs');
@@ -82,7 +84,7 @@ rl.on('line', (line) => {
 rl.on('close', function () {
   console.log('close file')
 
-  var j = schedule.scheduleJob('*/30 * * * * *', function () {
+  var j = schedule.scheduleJob('* * * * *', function () {
     if(mails.length > 0)
       send(mails.pop())
     else
