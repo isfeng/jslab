@@ -65,17 +65,26 @@ var re = /\.$/;
 rl.on('line', (line) => {
   if(line.indexOf(' error') != -1) {
     const splitted_mail = line.split(' ')[0]
-    console.log(splitted_mail)
+    // console.log(splitted_mail)
     if (re.test(splitted_mail))
       console.log(splitted_mail + '有點')
-    mails.push(splitted_mail)
+    else
+      mails.push(splitted_mail)
   }
 });
 
 rl.on('close', function () {
   console.log('close file')
 
-  send(mails, () => {
+  console.log(mails.length)
+  const tosend = [];
+  for (let i = 400; i < 448; i++) {
+    tosend.push(mails[i])
+  }
+  console.log('tosend')
+  console.log(tosend)
+  console.log(tosend.length)
+  send(tosend, () => {
     transporter.close()
   })
 });
